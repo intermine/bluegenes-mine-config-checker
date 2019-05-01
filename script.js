@@ -52,15 +52,18 @@ function mineNode(mine) {
 
 function fetchConfig(mine) {
   var thisMine = configs[mine.namespace] = {};
-   thisMine.webProperties = $.ajax(mine.url + "/service/web-properties");
-   thisMine.webProperties.done(function(response) {
-      thisMine.webProperties = response;
-       updateCell(mine.namespace, "webProperties");
-    });
-    thisMine.webProperties.fail(function(response) {
-       thisMine.webProperties = false;
-       updateCell(mine.namespace, "webProperties");
-    });
+  Object.keys(fieldsToCheck).map(function(fieldName){
+    var field = fieldsToCheck[fieldName];
+    thisMine[fieldName] = $.ajax(mine.url + "/service/" + field.url);
+    thisMine[fieldName].done(function(response) {
+       thisMine[fieldName] = response;
+        updateCell(mine.namespace, fieldName);
+     });
+     thisMine[fieldName].fail(function(response) {
+        thisMine[fieldName] = false;
+        updateCell(mine.namespace, fieldName);
+     });
+  });
 }
 
 function updateCell(mine, cell) {
