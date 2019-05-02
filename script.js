@@ -1,3 +1,52 @@
+//HELLO THERE!
+
+/**
+if you'd like to add a new config to check, here's what to do.
+
+1) to check for the EXISTENCE of an endpoint, add a top level property to
+   the fieldsToCheck object below. Example:
+   ```
+   webProperties: {
+     prettyName: "Web Properties",
+     url: "web-properties"
+   }
+   ```
+   This will go to each InterMine in the registry and call the endpoint you've
+   specified, e.g. for flymine this would be
+   GET http://www.flymine.org/flymine/service/web-properties
+   The response will be stored in config under the webProperties,
+   and we'll add a Y or N to the screen depending on whether or not we
+   got a 200 OK response.
+
+2) If you want to check for the existence of deeply nested properties within a
+   response, add a secondaryChecks object to the property you created previously
+   Example:
+   ```
+   webProperties: {
+     prettyName: "Web Properties",
+     url: "web-properties",
+     secondaryChecks: {
+       listExamplesDefault: {
+         prettyName: "List example .identifiers .default (preferred)",
+         check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["bag", "example", "identifiers", "default"]);
+         }
+       }
+     }
+   }
+   ```
+   You can add as many secondary checks as you like to a single endpoint.
+   each secondary check is comprised of its name/key
+   (e.g. `listExamplesDefault` above) and two properties:
+    - a "prettyName" for humans to read at the top of the
+      results display tables
+    - a `check` function. Use this to perform whatever function / checks
+      you deem necessary, and return a falsey value if it's bad, or a truthy
+      value if you like the result. 
+
+**/
+
 var fieldsToCheck = {
   webProperties: {
     prettyName: "Web Properties",
