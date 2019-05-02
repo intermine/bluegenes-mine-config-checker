@@ -3,12 +3,84 @@ var fieldsToCheck = {
     prettyName: "Web Properties",
     url: "web-properties",
     secondaryChecks: {
-      listExamples: {
-        prettyName: "List examples",
+      listExamplesOld: {
+        prettyName: "List example .identifiers (deprecated)",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"],
+            newConfig = checkNested(webProps, ["bag", "example", "identifiers", "default"]);
+          oldConfig = checkNested(webProps, ["bag", "example", "identifiers"]);
+          return oldConfig && !newConfig;
+        }
+      },
+      listExamplesDefault: {
+        //class-level identifiers are preferred but not all mines have them.
+        //some may have the previous config (above) or none at all
+        prettyName: "List example .identifiers .default (preferred)",
         check: function(mine) {
           var webProps = configs[mine.namespace].webProperties["web-properties"];
-          //console.log(mine.namespace, webProps);
-          return checkNested(webProps, ["bag", "example", "identifiers", "default"])
+          return checkNested(webProps, ["bag", "example", "identifiers", "default"]);
+        }
+      },
+      regionSearchDefaultOrganism: {
+        prettyName: "Region Search Default Organism",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["genomicRegionSearch", "defaultOrganisms"]);
+        }
+      },
+      regionSearchDefaultRegions: {
+        prettyName: "Region Search Default Regions",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["genomicRegionSearch", "defaultSpans"]);
+        }
+      },
+      qbDefaultQuery: {
+        prettyName: "Query Builder Default Query",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["services", "defaults", "query"]);
+        }
+      },
+      delimiters: {
+        prettyName: "List Delimiters",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["list", "upload", "delimiters"]);
+        }
+      },
+      searchDefaults: {
+        prettyName: "Search Defaults",
+        check: function(mine) {
+          var webProps = configs[mine.namespace].webProperties["web-properties"];
+          return checkNested(webProps, ["quickSearch", "identifiers"]);
+        }
+      }
+    }
+  },
+  branding: {
+    prettyName: "Branding",
+    url: "branding",
+    secondaryChecks: {
+      colors: {
+        prettyName: "Branding .colors",
+        check: function(mine) {
+          var props = configs[mine.namespace].branding.properties;
+          return checkNested(props, ["colors", "header"]);
+        }
+      },
+      logo: {
+        prettyName: "Branding .images .logo (preferred)",
+        check: function(mine) {
+          var props = configs[mine.namespace].branding.properties;
+          return checkNested(props, ["images", "logo"]);
+        }
+      },
+      oldLogo: {
+        prettyName: "Branding .images .main (deprecated)",
+        check: function(mine) {
+          var props = configs[mine.namespace].branding.properties;
+          return checkNested(props, ["images", "main"]);
         }
       }
     }
@@ -25,6 +97,9 @@ document.addEventListener("DOMContentLoaded", function() {
     .then(function(response) {
       //storing mines globally
       mines = response.instances;
+      mines.sort(function(mineA, mineB) {
+        return mineA.api_version <= mineB.api_version;
+      })
 
       var minesList = document.getElementById("interMinesList"),
         headerRow = minesList.querySelector("thead tr");
@@ -70,8 +145,8 @@ function mineNode(mine) {
 }
 
 /**
-* Helper for the mineNode function
-**/
+ * Helper for the mineNode function
+ **/
 function cellForField(fieldName) {
   return "<td class='" + fieldName + "'>Loading</td>";
 }
@@ -95,8 +170,8 @@ function generateHeader() {
 }
 
 /**
-* Helper for the mineNode function
-**/
+ * Helper for the generateHeader function
+ **/
 function cellForHeaderField(fieldName) {
   console.log(fieldName);
   return "<th>" + fieldName.prettyName + "</th>"
@@ -129,7 +204,9 @@ show the value in the cell
 **/
 function updateCell(mine, cell) {
   var elem = document.getElementById(mine).getElementsByClassName(cell)[0];
-  elem.innerHTML = configs[mine][cell] ? "Y" : "N"
+  var result = configs[mine][cell] ? "Y" : "N";
+  elem.innerHTML = result;
+  elem.setAttribute("class", result);
 }
 
 
