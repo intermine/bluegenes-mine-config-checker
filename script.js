@@ -43,7 +43,7 @@ if you'd like to add a new config to check, here's what to do.
       results display tables
     - a `check` function. Use this to perform whatever function / checks
       you deem necessary, and return a falsey value if it's bad, or a truthy
-      value if you like the result. 
+      value if you like the result.
 
 **/
 
@@ -147,8 +147,8 @@ document.addEventListener("DOMContentLoaded", function() {
       //storing mines globally
       mines = response.instances;
       mines.sort(function(mineA, mineB) {
-        return mineA.api_version <= mineB.api_version;
-      })
+        return (mineB.api_version - mineA.api_version);
+      });
 
       var minesList = document.getElementById("interMinesList"),
         headerRow = minesList.querySelector("thead tr");
@@ -175,9 +175,11 @@ document.addEventListener("DOMContentLoaded", function() {
  **/
 function mineNode(mine) {
   //Generate text for links to each mine.
-  var mineNode = document.createElement("tr"),
+  var isSecure = isHTTPS(mine),
+    mineNode = document.createElement("tr"),
     mineRow = "<td>" + mine.name + "</td>" +
-    "<td>" + mine.api_version + "</td>";
+    "<td>" + mine.api_version + "</td>"+
+    "<td class='https " + isSecure + "'>" + isSecure + "</td>";
   Object.keys(fieldsToCheck).map(function(fieldName) {
     mineRow += cellForField(fieldName);
     var secondaryChecks = fieldsToCheck[fieldName].secondaryChecks;
@@ -194,6 +196,20 @@ function mineNode(mine) {
 }
 
 /**
+checks if a url starts with https or not
+**/
+function isHTTPS(mine) {
+  var mineProtocol = mine.url.split("://")[0],
+  result;
+  if (mineProtocol == "https") {
+    result = "Y";
+  } else {
+    result = "N";
+  }
+  return result;
+}
+
+/**
  * Helper for the mineNode function
  **/
 function cellForField(fieldName) {
@@ -205,7 +221,7 @@ function cellForField(fieldName) {
  * put in the settings.
  **/
 function generateHeader() {
-  var header = "<th>Mine Name</th> <th>API version</th>"
+  var header = "<th>Mine Name</th> <th>API version</th> <th>HTTPS?</th>"
   Object.keys(fieldsToCheck).map(function(field) {
     header += cellForHeaderField(fieldsToCheck[field]);
     var secondaryChecks = fieldsToCheck[field].secondaryChecks;
@@ -222,7 +238,6 @@ function generateHeader() {
  * Helper for the generateHeader function
  **/
 function cellForHeaderField(fieldName) {
-  console.log(fieldName);
   return "<th>" + fieldName.prettyName + "</th>"
 }
 
