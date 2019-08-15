@@ -179,6 +179,7 @@ function mineNode(mine) {
     mineNode = document.createElement("tr"),
     mineRow = "<td>" + mine.name + "</td>" +
     "<td>" + mine.api_version + "</td>"+
+    "<td>" + mine.intermine_version + "</td>"+
     "<td class='https " + isSecure + "'>" + isSecure + "</td>";
   Object.keys(fieldsToCheck).map(function(fieldName) {
     mineRow += cellForField(fieldName);
@@ -221,7 +222,7 @@ function cellForField(fieldName) {
  * put in the settings.
  **/
 function generateHeader() {
-  var header = "<th>Mine Name</th> <th>API version</th> <th>HTTPS?</th>"
+  var header = "<th>Mine Name</th> <th>API version</th> <th>InterMine version</th> <th>HTTPS?</th>"
   Object.keys(fieldsToCheck).map(function(field) {
     header += cellForHeaderField(fieldsToCheck[field]);
     var secondaryChecks = fieldsToCheck[field].secondaryChecks;
